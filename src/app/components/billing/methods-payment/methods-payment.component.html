@@ -1,0 +1,682 @@
+<div class="">
+  <div class="card-header p-1 bg-white">
+      <button
+      [disabled]="total <= 0"
+      (click)="modalNewPay()"
+      type="button"
+      class="btn btn-primary btn-xs float-end"
+    >
+      <i class="fas fa-plus"></i>
+    </button>
+       <h6 class="mt-0 mb-2">Cancelación</h6>
+
+  </div>
+  <div class="card-body p-0">
+    <!-- {{ payments | json }} -->
+    <table class="table m-0" [cellPadding]="5">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Forma de pago</th>
+          <th>Monto</th>
+          <th>Acción</th>
+          <td style="width: 10px">
+            <div class="m-0 p-0">
+              <!-- <button
+                [disabled]="total == 0"
+                (click)="modalNewPay()"
+                class="btn btn-xs btn-success m-0"
+              >
+                <i class="fas fa-plus"></i>
+              </button> -->
+            </div>
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cp of payments; let index = index">
+          <td>{{ cp.type }}</td>
+
+          <td>
+
+            <span *ngIf="cp.type == 'CONTADO'">{{ cp.nombre_formapago }}</span>
+          </td>
+          <td>{{ cp.amount }}</td>
+          <td>
+            <button
+              [disabled]="total <= 0"
+              (click)="modalNewPay(index)"
+              class="btn btn-xs btn-warning"
+            >
+              <i class="fas fa-pencil-alt"></i>
+            </button>
+            <button
+              [disabled]="total <= 0"
+              (click)="deletePayment(index)"
+              class="btn btn-xs btn-danger"
+              style="margin-left: 3px"
+            >
+              <i class="fas fa-minus"></i>
+            </button>
+          </td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="row my-1">
+       <div class="col-12">
+            <button
+        [disabled]="total <= 0"
+          (click)="modalNewPay(undefined, 'CHEQUE')"
+          type="button"
+          class="btnbtn-sm btn-white float-end me-1"
+        >
+          Cheque
+        </button>
+        <button
+        [disabled]="total <= 0"
+          (click)="modalNewPay(undefined, 'TARJETA C')"
+          type="button"
+          class="btnbtn-sm btn-white float-end me-1"
+        >
+          Tarjeta C
+        </button>
+          <button
+        [disabled]="total <= 0"
+          (click)="modalNewPay(undefined, 'TARJETA D')"
+          type="button"
+          class="btnbtn-sm btn-white float-end me-1"
+        >
+          Tarjeta D
+        </button>
+        <button
+        [disabled]="total <= 0"
+          (click)="modalNewPay(undefined, 'CRÉDITO')"
+          type="button"
+          class="btnbtn-sm btn-white float-end me-1"
+        >
+          Crédito
+        </button>
+        <button
+        [disabled]="total <= 0"
+          (click)="modalNewPay(undefined, 'EFECTIVO')"
+          type="button"
+          class="btnbtn-sm btn-white float-end me-1"
+        >
+          Efectivo
+        </button>
+
+        <p class="m-2">
+          <b *ngIf="cashPaymentTotalPending() > 0"> Faltante: </b>
+          <b *ngIf="cashPaymentTotalPending() <= 0"> Cambio: </b>
+          <span
+            [ngClass]="{
+              'text-danger': cashPaymentTotalPending() > 0,
+              'text-secondary': cashPaymentTotalPending() == 0,
+              'text-success': cashPaymentTotalPending() < 0
+            }"
+          >
+            <span *ngIf="cashPaymentTotalPending() < 0">{{
+              cashPaymentTotalPending() * -1
+            }}</span>
+            <span *ngIf="cashPaymentTotalPending() >= 0">{{
+              cashPaymentTotalPending()
+            }}</span>
+          </span>
+          $
+        </p>
+      </div>
+    </div>
+  </div>
+  <!-- <div class="card-footer"></div> -->
+</div>
+
+<ng-template #modalPay let-c="close " let-d="dismiss ">
+  <!-- {{ newPay | json }} -->
+  <form
+    [formGroup]="form"
+    *ngIf="form"
+    (ngSubmit)="submit()"
+    autocomplete="off"
+  >
+    <div class="modal-header">
+      <h5 *ngIf="!pagarm" class="modal-title" id="exampleModalLabel">
+        <span *ngIf="edit.index == undefined"> Agregar </span>
+        <span *ngIf="edit.index != undefined"> Editar </span> forma de pago
+        <!-- de {{ cancelPayment }} -->
+      </h5>
+
+      <h5
+        *ngIf="pagarm"
+        class="modal-title text-primary"
+        id="exampleModalLabel"
+      >
+        Pagar
+      </h5>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="modal"
+        aria-label="Close"
+        (click)="sendToFatherF('hideModal')"
+      ></button>
+    </div>
+
+    <div class="modal-body">
+      <!-- <div class="row" *ngIf="pagarm">
+        <div class="form-group col-12 mb-2">
+          <h5>Total</h5>
+          <input
+            readonly
+            maxlength="12"
+            type="text"
+            class="form-control form-control-lg"
+            value="{{ total }}"
+          />
+        </div>
+
+        <div class="form-group col-12 mb-2">
+          <h5 for=" ">Monto</h5>
+          <input
+            maxlength="12"
+            type="text"
+            class="form-control form-control-lg"
+            formControlName="amount"
+          />
+          <label *ngIf="validate('amount').valid" class="text-danger">
+            {{ validate("amount").error }}
+          </label>
+        </div>
+        <div class="form-group col-12 mb-2">
+          <h5 *ngIf="cashPaymentTotalPending() > 0">Faltante</h5>
+          <h5 *ngIf="cashPaymentTotalPending() <= 0">Cambio</h5>
+          <input
+            readonly
+            value="{{
+              cashPaymentTotalPending() < 0
+                ? cashPaymentTotalPending() * -1
+                : cashPaymentTotalPending()
+            }}"
+            type="text"
+            class="form-control form-control-lg"
+            [ngClass]="{
+              'text-danger': cashPaymentTotalPending() > 0,
+              'text-secondary': cashPaymentTotalPending() == 0,
+              'text-success': cashPaymentTotalPending() < 0
+            }"
+          />
+        </div>
+      </div> -->
+
+      <div class="row">
+        <div class="form-group col-md-3">
+          <label>Tipo</label>
+          <select formControlName="type" class="form-control">
+            <option value="CONTADO">CONTADO</option>
+            <option value="CRÉDITO">CRÉDITO</option>
+          </select>
+          <label *ngIf="validate('id_formapago').valid" class="text-danger">
+            {{ validate("id_formapago").error }}
+          </label>
+        </div>
+
+        <div class="form-group col-md-3" *ngIf="newPay.type == 'CONTADO'">
+          <label>Forma de Pago</label>
+          <select formControlName="id_formapago" class="form-control">
+            <option
+              *ngFor="let t of typesPayments"
+              value="{{ t.id_formapago }}"
+            >
+              {{ t.nombre_formapago }}
+            </option>
+          </select>
+          <label *ngIf="validate('id_formapago').valid" class="text-danger">
+            {{ validate("id_formapago").error }}
+          </label>
+        </div>
+
+        <div class="form-group col-md-3">
+          <label for=" ">Monto</label>
+          <input
+            maxlength="12"
+            type="text"
+            class="form-control"
+            formControlName="amount"
+          />
+          <label *ngIf="validate('amount').valid" class="text-danger">
+            {{ validate("amount").error }}
+          </label>
+        </div>
+        <div class="form-group col-md-3">
+          <label *ngIf="cashPaymentTotalPending() > 0"> Faltante </label>
+          <label *ngIf="cashPaymentTotalPending() <= 0"> Cambio </label>
+          <input
+            readonly
+            value="{{
+              cashPaymentTotalPending() < 0
+                ? cashPaymentTotalPending() * -1
+                : cashPaymentTotalPending()
+            }}"
+            type="text"
+            class="form-control"
+            [ngClass]="{
+              'text-danger': cashPaymentTotalPending() > 0,
+              'text-secondary': cashPaymentTotalPending() == 0,
+              'text-success': cashPaymentTotalPending() < 0
+            }"
+          />
+        </div>
+      </div>
+      <!-- CRÉDITO -->
+      <div class="row" *ngIf="newPay?.type == 'CRÉDITO'">
+        <div class="form-group col-md-3">
+          <label for=" ">Fecha límite</label>
+          <input formControlName="date" type="date" class="form-control" />
+          <label *ngIf="validate('fechalimite').valid" class="text-danger">
+            {{ validate("fechalimite").error }}
+          </label>
+        </div>
+
+        <input type="hidden" formControlName="dias" class="form-control" />
+        <label *ngIf="validate('dias').valid" class="text-danger">
+          {{ validate("dias").error }}
+        </label>
+        <!-- <div class="form-group col-md-2">
+          <label for=" ">Días</label>
+          <input type="number" formControlName="dias" class="form-control" />
+
+        </div> -->
+
+        <div class="form-group col-md-2">
+          <label for=" ">% interes</label>
+          <input
+            type="number"
+            formControlName="p100interes_credito"
+            class="form-control"
+          />
+          <label
+            *ngIf="validate('p100interes_credito').valid"
+            class="text-danger"
+          >
+            {{ validate("p100interes_credito").error }}
+          </label>
+        </div>
+
+        <div class="form-group col-md-2">
+          <label for=" ">% mora</label>
+          <input
+            type="number"
+            formControlName="p100interes_mora"
+            class="form-control"
+          />
+          <label *ngIf="validate('p100interes_mora').valid" class="text-danger">
+            {{ validate("p100interes_mora").error }}
+          </label>
+        </div>
+
+        <div class="form-group col-md-2">
+          <label for=" ">Cuotas</label>
+          <input
+            type="number"
+            formControlName="cantidadcuotas"
+            class="form-control"
+          />
+          <label *ngIf="validate('cantidadcuotas').valid" class="text-danger">
+            {{ validate("cantidadcuotas").error }}
+          </label>
+        </div>
+
+        <div class="form-group col-md-3">
+          <label for=" ">Abono Inicial</label>
+          <input
+            type="text"
+            formControlName="abonoinicial"
+            class="form-control"
+          />
+          <label *ngIf="validate('abonoinicial').valid" class="text-danger">
+            {{ validate("abonoinicial").error }}
+          </label>
+        </div>
+
+        <div class="form-group col-md-3">
+          <label for=" ">Monto interes</label>
+          <input
+            readonly
+            type="text"
+            formControlName="montointerescredito"
+            class="form-control"
+          />
+          <label
+            *ngIf="validate('montointerescredito').valid"
+            class="text-danger"
+          >
+            {{ validate("montointerescredito").error }}
+          </label>
+        </div>
+
+        <!-- fechalimite *
+          dias *
+          p100interes_credito*
+          p100interes_mora*
+          cantidadcuotas*
+          abonoinicial*
+          amount**
+          montointerescredito*
+          amount -->
+      </div>
+
+      <!-- TARJETAS -->
+      <div
+        *ngIf="newPay?.estarjeta == 1 && newPay?.type != 'CRÉDITO'"
+        id="tarjetas"
+        class="row mt-1"
+      >
+        <div class="form-group col-md-3">
+          <label for=" ">Fecha</label>
+          <input formControlName="date" type="date" class="form-control" />
+          <label *ngIf="validate('date').valid" class="text-danger">
+            {{ validate("date").error }}
+          </label>
+        </div>
+        <div class="form-group col-md-4">
+          <label>Tarjetas</label>
+          <select formControlName="target" class="form-control">
+            <option value="1 ">American Express</option>
+            <option value="2 ">Bankard Bolivariano</option>
+            <option value="3 ">Diners Club</option>
+            <option value="4 ">Discover</option>
+            <option value="5 ">Interdin</option>
+            <option value="6 ">Mastercard</option>
+            <option value="7 ">PacifiCard</option>
+            <option value="8 ">Visa</option>
+          </select>
+          <label *ngIf="validate('target').valid" class="text-danger">
+            {{ validate("target").error }}
+          </label>
+        </div>
+        <div
+          class="form-group col-md-4"
+          style="margin-bottom: 5px; padding-left: 0px"
+        >
+          <label for=" ">Nro Tarjeta</label>
+          <input
+            formControlName="number_target"
+            type="text"
+            class="form-control"
+          />
+          <label *ngIf="validate('number_target').valid" class="text-danger">
+            {{ validate("number_target").error }}
+          </label>
+        </div>
+        <div id="banc " class="form-group col-md-4">
+          <label>Banco </label>
+          <select formControlName="bank" class="form-control">
+            <option value="26">11 de Junio</option>
+            <option value="27">15 de Abril</option>
+            <option value="28">23 de Julio</option>
+            <option value="29">29 de Octubre</option>
+            <option value="30">9 de Octubre</option>
+            <option value="31">Alianza del Valle</option>
+            <option value="1">Amazonas</option>
+            <option value="32">Andalucía</option>
+            <option value="33">Atuntaqui</option>
+            <option value="2">Austro</option>
+            <option value="3">Bolivariano</option>
+            <option value="34">CACPE BIBLIAN</option>
+            <option value="35">CACPE PASTAZA</option>
+            <option value="36">CACPECO</option>
+            <option value="37">Calceta</option>
+            <option value="38">Cámara de Comercio de Quito</option>
+            <option value="4">Capital</option>
+            <option value="39">Chone Ltda.</option>
+            <option value="5">Citybank</option>
+            <option value="40">CODESARROLLO</option>
+            <option value="6">COFIEC</option>
+            <option value="7">Comercial de Manabí</option>
+            <option value="41">Comercio</option>
+            <option value="42">COOPAD</option>
+            <option value="43">Cotocollao</option>
+            <option value="8">Del Bank</option>
+            <option value="44">El Sagrario</option>
+            <option value="45">Financoop</option>
+            <option value="9">Finca</option>
+            <option value="10">General Rumiñahui</option>
+            <option value="46">Guaranda</option>
+            <option value="11">Guayaquil</option>
+            <option value="12">Internacional</option>
+            <option value="47">Jardín Azuayo</option>
+            <option value="48">Jesús del Gran Poder</option>
+            <option value="49">Juventud Ecuatoriana Progresista</option>
+            <option value="50">La Dolorosa</option>
+            <option value="13">Litoral</option>
+            <option value="14">Lloyds Bank</option>
+            <option value="15">Loja</option>
+            <option value="16">Machala</option>
+            <option value="51">Manuel Esteban Godoy Ortega</option>
+            <option value="52">Metropolitana</option>
+            <option value="17">MM Jaramillo Arteaga</option>
+            <option value="53">Nacional</option>
+            <option value="54">Oscus</option>
+            <option value="55">Pablo Muñoz Vega</option>
+            <option value="18">Pacifico</option>
+            <option value="56">Padre Julián Lorenta</option>
+            <option value="19">Pichincha</option>
+            <option value="20">Procredit</option>
+            <option value="21">Produbanco</option>
+            <option value="57">Progreso</option>
+            <option value="58">Riobamba</option>
+            <option value="59">San Francisco</option>
+            <option value="60">San Francisco de Asís</option>
+            <option value="61">San José</option>
+            <option value="62">Santa Ana</option>
+            <option value="63">Santa Rosa</option>
+            <option value="22">Solidario</option>
+            <option value="23">Sudamericano</option>
+            <option value="24">Territorial</option>
+            <option value="64">Tulcán</option>
+            <option value="25">Unibanco</option>
+          </select>
+          <label *ngIf="validate('bank').valid" class="text-danger">
+            {{ validate("bank").error }}
+          </label>
+        </div>
+        <div class="form-group col-md-4">
+          <label for=" ">Nro Documento</label>
+          <input
+            type="text "
+            formControlName="number_document"
+            class="form-control"
+          />
+          <label *ngIf="validate('number_document').valid" class="text-danger">
+            {{ validate("number_document").error }}
+          </label>
+        </div>
+        <div class="form-group col-md-12">
+          <label for=" ">Descripción Documento</label>
+          <input
+            type="text"
+            formControlName="description_document"
+            class="form-control"
+          />
+          <label
+            *ngIf="validate('description_document').valid"
+            class="text-danger"
+          >
+            {{ validate("description_document").error }}
+          </label>
+        </div>
+      </div>
+
+      <!-- BANCO -->
+      <div
+        *ngIf="newPay?.esuninstrumentobanco == 1 && newPay?.type != 'CRÉDITO'"
+        class="row mt-1"
+      >
+        <div class="form-group col-md-3">
+          <label for=" ">Fecha Emisión</label>
+          <input
+            formControlName="date_of_issue"
+            type="date"
+            class="form-control"
+          />
+          <label *ngIf="validate('date_of_issue').valid" class="text-danger">
+            {{ validate("date_of_issue").error }}
+          </label>
+        </div>
+        <div class="form-group col-md-3">
+          <label for=" ">Fecha Cobro</label>
+          <input
+            formControlName="date_of_withdrawal"
+            type="date"
+            class="form-control"
+            name=" "
+          />
+          <label
+            *ngIf="validate('date_of_withdrawal').valid"
+            class="text-danger"
+          >
+            {{ validate("date_of_withdrawal").error }}
+          </label>
+        </div>
+        <div class="form-group col-md-4">
+          <label>Bancos</label>
+          <select formControlName="bank" class="form-control">
+            <option selected="TRUE ">Seleccione...</option>
+            <option value="26">11 de Junio</option>
+            <option value="27">15 de Abril</option>
+            <option value="28">23 de Julio</option>
+            <option value="29">29 de Octubre</option>
+            <option value="30">9 de Octubre</option>
+            <option value="31">Alianza del Valle</option>
+            <option value="1">Amazonas</option>
+            <option value="32">Andalucía</option>
+            <option value="33">Atuntaqui</option>
+            <option value="2">Austro</option>
+            <option value="3">Bolivariano</option>
+            <option value="34">CACPE BIBLIAN</option>
+            <option value="35">CACPE PASTAZA</option>
+            <option value="36">CACPECO</option>
+            <option value="37">Calceta</option>
+            <option value="38">Cámara de Comercio de Quito</option>
+            <option value="4">Capital</option>
+            <option value="39">Chone Ltda.</option>
+            <option value="5">Citybank</option>
+            <option value="40">CODESARROLLO</option>
+            <option value="6">COFIEC</option>
+            <option value="7">Comercial de Manabí</option>
+            <option value="41">Comercio</option>
+            <option value="42">COOPAD</option>
+            <option value="43">Cotocollao</option>
+            <option value="8">Del Bank</option>
+            <option value="44">El Sagrario</option>
+            <option value="45">Financoop</option>
+            <option value="9">Finca</option>
+            <option value="10">General Rumiñahui</option>
+            <option value="46">Guaranda</option>
+            <option value="11">Guayaquil</option>
+            <option value="12">Internacional</option>
+            <option value="47">Jardín Azuayo</option>
+            <option value="48">Jesús del Gran Poder</option>
+            <option value="49">Juventud Ecuatoriana Progresista</option>
+            <option value="50">La Dolorosa</option>
+            <option value="13">Litoral</option>
+            <option value="14">Lloyds Bank</option>
+            <option value="15">Loja</option>
+            <option value="16">Machala</option>
+            <option value="51">Manuel Esteban Godoy Ortega</option>
+            <option value="52">Metropolitana</option>
+            <option value="17">MM Jaramillo Arteaga</option>
+            <option value="53">Nacional</option>
+            <option value="54">Oscus</option>
+            <option value="55">Pablo Muñoz Vega</option>
+            <option value="18">Pacifico</option>
+            <option value="56">Padre Julián Lorenta</option>
+            <option value="19">Pichincha</option>
+            <option value="20">Procredit</option>
+            <option value="21">Produbanco</option>
+            <option value="57">Progreso</option>
+            <option value="58">Riobamba</option>
+            <option value="59">San Francisco</option>
+            <option value="60">San Francisco de Asís</option>
+            <option value="61">San José</option>
+            <option value="62">Santa Ana</option>
+            <option value="63">Santa Rosa</option>
+            <option value="22">Solidario</option>
+            <option value="23">Sudamericano</option>
+            <option value="24">Territorial</option>
+            <option value="64">Tulcán</option>
+            <option value="25">Unibanco</option>
+          </select>
+          <label *ngIf="validate('bank').valid" class="text-danger">
+            {{ validate("bank").error }}
+          </label>
+        </div>
+
+        <div class="form-group col-md-6">
+          <label>Nro Cuenta</label>
+          <input
+            formControlName="number_account"
+            type="text"
+            class="form-control"
+          />
+          <label *ngIf="validate('number_account').valid" class="text-danger">
+            {{ validate("number_account").error }}
+          </label>
+        </div>
+
+        <div class="form-group col-md-4">
+          <label>Nro Documento</label>
+          <input
+            formControlName="number_document"
+            type="text"
+            class="form-control"
+          />
+          <label *ngIf="validate('number_document').valid" class="text-danger">
+            {{ validate("number_document").error }}
+          </label>
+        </div>
+
+        <div class="form-group col-md-12">
+          <label>Descripción Documento</label>
+          <input
+            formControlName="description_document"
+            type="text"
+            class="form-control"
+          />
+          <label
+            *ngIf="validate('description_document').valid"
+            class="text-danger"
+          >
+            {{ validate("description_document").error }}
+          </label>
+        </div>
+      </div>
+      <div *ngIf="newPay?.type == 'CRÉDITO'" class="row mt-1"></div>
+    </div>
+    <div class="modal-footer">
+      <button
+        type="button"
+        class="btn btn-secondary btn-lg"
+        (click)="resetNewPay(); sendToFatherF('hideModal')"
+      >
+        <i class="fas fa-times"></i> Cancelar
+      </button>
+
+      <button
+        (click)="sendToFatherF('pay')"
+        *ngIf="pagarm"
+        type="button"
+        class="btn btn-primary btn-lg"
+      >
+        <i class="fas fa-credit-card"></i> Pagar
+      </button>
+
+      <button *ngIf="!pagarm" type="submit" class="btn btn-primary btn-lg">
+        <i class="fas fa-save"></i> Guardar
+      </button>
+    </div>
+  </form>
+
+  <ng-template> </ng-template
+></ng-template>

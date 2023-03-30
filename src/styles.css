@@ -1,0 +1,252 @@
+/* You can add global styles to this file, and also import other style files */
+
+body {
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: rgb(102, 102, 102);
+}
+
+.m-0 {
+  margin: 0 !important;
+}
+
+.btn-sm-p {
+  padding: 5px !important;
+  height: 25px !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+}
+
+.btn-white {
+  background: white;
+  border: solid 1px rgb(230, 230, 230);
+}
+
+.btn-white:hover {
+  background: rgb(240, 240, 240);
+  border: solid 1px rgb(209, 209, 209);
+}
+
+.table-sm .form-control {
+  height: 25px !important;
+  font-size: 12px !important;
+  margin: 0 !important;
+  padding: 5px !important;
+  line-height: 1 !important;
+}
+
+.table-sm .input-group .btn {
+  height: 25px !important;
+  font-size: 12px !important;
+  padding: 5px !important;
+  line-height: 1 !important;
+}
+
+p.text-danger {
+  font-size: 11px;
+  margin-top: 0 !important;
+  padding: 0 !important;
+  margin: 0;
+  display: block;
+}
+
+.input-group {
+  border-radius: 1px !important;
+}
+
+.table {
+  border: 1px solid rgb(190, 190, 190) !important;
+  margin-top: 20px;
+}
+
+.table > thead > tr > th {
+  border-color: rgb(190, 190, 190) !important;
+  padding: 7px 10px 7px 5px !important;
+}
+
+.table > tbody > tr > td {
+  border-color: rgb(190, 190, 190) !important;
+  padding: 7px 10px 7px 5px !important;
+}
+
+label {
+  font-size: 13px !important;
+}
+
+.dataTables_info {
+  font-size: 13px !important;
+}
+
+.btn-xs {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-size: 9px;
+}
+
+/* loader sm */
+
+.lds-dual-ring {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+}
+
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 15px;
+  height: 15px;
+  margin: 5px;
+  border-radius: 50%;
+  border: 1px solid #fff;
+  border-color: grey transparent grey transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+textarea:hover,
+input:hover,
+textarea:active,
+input:active,
+textarea:focus,
+input:focus,
+button:focus,
+button:active,
+button:hover,
+select:active,
+select:hover,
+select:focus,
+label:focus,
+.btn:active,
+.btn.active {
+  outline: 0px !important;
+  -webkit-appearance: none;
+  box-shadow: none !important;
+  border-color: transparent;
+  border-color: grey !important;
+}
+
+button.nav-link {
+  color: grey !important;
+}
+
+button.nav-link.active {
+  color: rgb(88, 88, 88) !important;
+  font-weight: 600;
+}
+
+button.nav-link:focus,
+button.nav-link:hover {
+  border-bottom: none !important;
+}
+
+.table-sm select.form-control {
+  -webkit-appearance: menulist;
+  line-height: 1 !important;
+  padding: 0 !important;
+}
+
+/* laoder lg */
+
+.loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999999;
+  background: rgba(255, 255, 255, 0.301);
+}
+
+.lds-dual-ring-lg {
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+}
+
+.lds-dual-ring-lg:after {
+  content: " ";
+  display: block;
+  width: 45px;
+  height: 45px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 5px solid #fff;
+  border-color: rgb(32, 102, 255) transparent rgb(32, 102, 255) transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+
+@keyframes lds-dual-ring-lg {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.input-group-lg .input-group-text {
+  height: 100%;
+  font-size: 18px;
+}
+
+input[readonly] {
+  background-color: rgba(255, 255, 255, 0.932) !important;
+}
+
+input[readonly]:hover {
+  cursor: not-allowed;
+}
+
+.ticket {
+  background: red !important;
+}
+
+.ticket p {
+  font-size: 15px !important;
+  color:rgb(0, 0, 0) !important;
+}
+
+.ticket table tr td  {
+  font-size: 14px !important;
+  color:rgb(0, 0, 0) !important;
+}
+
+.ticket table tr th  {
+  font-size: 15px !important;
+  color:rgb(0, 0, 0) !important;
+  text-transform: uppercase;
+}
+
+.ticket h6{
+  font-size: 16px !important;
+  color:rgb(0, 0, 0) !important;
+}
+
+.ticket strong{
+  text-transform: uppercase;
+  color:rgb(0, 0, 0) !important;
+}
+
+
+

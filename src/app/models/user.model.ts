@@ -1,0 +1,37 @@
+export class User {
+  id: number;
+  // unique_code:string;
+  email:string;
+  password:string;
+  alias:string;
+  name:string;
+  // last_name:string;
+  token_email:string;
+  date_email_verified:string;
+  email_token_validation:string;
+  role:string;
+  nationality:string;
+  document_type:string;
+  document_number:string;
+  // data_complete:string;
+  // subscription_date:string;
+  // departure_date:string;
+  date_of_birth:string;
+  age:string;
+  whatsapp:any;
+  phone:any;
+  phone2:any;
+  user_verified:any;
+  country_id:string;
+  country:string;
+  state_id:string;
+  state:string;
+  city_id:string;
+  city:string;
+  municipality:string;
+  address:string;
+  // token:string;
+  imagen_de_perfil:string;
+  // paypal:string;
+  // banks:any[];
+}

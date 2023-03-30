@@ -1,0 +1,1031 @@
+<app-loader *ngIf="loading"></app-loader>
+
+<br />
+<div class="container-p">
+  <div class="row">
+    <div class="col-12">
+      <button
+        (click)="newF()"
+        type="button"
+        class="btn btn-primary btn-sm float-end me-1 mb-1"
+      >
+        <i class="fa-solid fa-hand-holding-dollar"></i> Nueva venta
+      </button>
+      <!-- <a
+        href="http://192.168.0.128"
+        class="btn btn-success btn-sm float-end me-1 mb-1"
+      >
+        <i class="fas fa-home"></i> inicio
+      </a> -->
+
+       <a
+        href="https://csempaquesf.actfacturas.com"
+        class="btn btn-success btn-sm float-end me-1 mb-1"
+      >
+        <i class="fas fa-home"></i> inicio
+      </a>
+      <h5>Facturación</h5>
+    </div>
+  </div>
+  <div class="card card-client mb-2">
+    <div class="disabled" *ngIf="lockscards"></div>
+    <div class="card-body">
+      <button
+        type="button"
+        class="btn btn-primary btn-sm float-end me-1 mb-1"
+        (click)="client = { tipo_ident_cliente: 'R' }; openModalClient()"
+      >
+        <i class="fas fa-plus"></i> Nuevo
+      </button>
+      <button
+        type="button"
+        class="btn btn-success btn-sm float-end me-1 mb-1"
+        (click)="openModalClients()"
+      >
+        <i class="fas fa-users"></i> Lista
+      </button>
+
+      <h6>Cliente</h6>
+      <!-- {{client | json}} -->
+      <form *ngIf="form" [formGroup]="form" autocomplete="off">
+        <div class="row" style="width: 100%; margin: auto; margin-top: -10px">
+          <div class="float-start mb-1" style="width: 200px">
+            <div class="input-group input-group-sm float-start mb-1">
+              <span class="input-group-text" id="inputGroup-sizing-sm"
+                >Tipo Ident.</span
+              >
+              <select
+                (change)="resetClientNoCF($event)"
+                #tipe_ident
+                formControlName="tipo_ident_cliente"
+                value=""
+                class="form-control"
+                name=""
+                id=""
+              >
+                <option value="R">R.U.C.</option>
+                <option value="C">Cédula</option>
+                <option value="P">Pasaporte</option>
+              </select>
+              <p
+                *ngIf="validate('tipo_ident_cliente').valid"
+                class="text-danger"
+              >
+                {{ validate("tipo_ident_cliente").error }}
+              </p>
+            </div>
+          </div>
+
+          <div class="float-start mb-1" style="width: 250px">
+            <div class="input-group input-group-sm float-start mb-1">
+              <span class="input-group-text" id="inputGroup-sizing-sm"
+                >Nro Ident.</span
+              >
+              <input
+                #ident
+                formControlName="ident_cliente"
+                (keydown)="searchClient()"
+                value=""
+                type="text"
+                class="form-control"
+              />
+              <div class="lds-dual-ring" *ngIf="searchingClient"></div>
+            </div>
+            <p *ngIf="validate('ident_cliente').valid" class="text-danger">
+              {{ validate("ident_cliente").error }}
+            </p>
+            <p class="text-danger" *ngIf="form.hasError('ident_ruc')">
+              El número de ruc es incorrecto
+            </p>
+            <p class="text-danger" *ngIf="form.hasError('ident_c')">
+              El número de cédula es incorrecto.
+            </p>
+            <p class="text-danger" *ngIf="form.hasError('ident_p')">
+              El número de pasaporte es incorrecto.
+            </p>
+            <p class="text-danger" *ngIf="identNotExist">
+              no se encontro cliente con esta identificación.
+            </p>
+          </div>
+
+          <div
+            *ngIf="client?.nom_cliente"
+            class="float-start mb-1 pt-1 pe-4"
+            style="width: auto"
+          >
+            <strong>Nombre:</strong> {{ client.nom_cliente }}
+          </div>
+          <div
+            *ngIf="client?.telefonos_cliente"
+            class="float-start mb-1 pt-1 pe-4"
+            style="width: auto"
+          >
+            <strong>Teléfono:</strong> {{ client.telefonos_cliente }}
+          </div>
+
+          <div
+            *ngIf="client?.correo_cliente"
+            class="float-start mb-1 pt-1 pe-4"
+            style="width: auto"
+          >
+            <strong>Correo:</strong> {{ client.correo_cliente }}
+          </div>
+
+          <div
+            *ngIf="client?.ciudad_cliente"
+            class="float-start mb-1 pt-1 pe-4"
+            style="width: auto"
+          >
+            <strong>Ciudad:</strong> {{ client.ciudad_cliente }}
+          </div>
+
+          <div
+            *ngIf="client?.direccion_cliente"
+            class="float-start mb-1 pt-1 pe-4"
+            style="width: auto"
+          >
+            <strong>Dirección:</strong> {{ client.direccion_cliente }}
+          </div>
+
+          <div
+            *ngIf="client?.placa_matricula"
+            class="float-start mb-1 pt-1 pe-4"
+            style="width: auto"
+          >
+            <strong>Placa:</strong> {{ client.placa_matricula }}
+          </div>
+
+          <div
+            (click)="openModalClient()"
+            *ngIf="client?.nom_cliente != 'CONSUMIDOR FINAL'"
+            class="float-start mb-1 pe-4"
+            style="width: auto"
+          >
+            <button type="button" class="btn btn-sm btn-white">
+              <i class="fas fa-pencil-alt"></i> Editar cliente
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card mb-2">
+    <div class="disabled" *ngIf="lockscards"></div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-xl-2 col-lg-3">
+          <div class="input-group input-group-sm float-start mb-1">
+            <span class="input-group-text" id="inputGroup-sizing-sm">
+              Tipo doc.</span
+            >
+            <select #tipo_documento class="form-control">
+              <option selected value="01">Nota de venta</option>
+              <option value="02">Factura</option>
+            </select>
+            <p *ngIf="validate('tipo_documento').valid" class="text-danger">
+              {{ validate("tipo_documento").error }}
+            </p>
+          </div>
+        </div>
+        <div class="col-xl-10 col-lg-9">
+          <div class="input-group input-group-sm float-start mb-1">
+            <span class="input-group-text" id="inputGroup-sizing-sm">
+              Observaciones</span
+            >
+            <input
+              #observaciones
+              maxlength="255"
+              class="form-control"
+              type="text"
+            />
+            <p *ngIf="validate('observaciones').valid" class="text-danger">
+              {{ validate("observaciones").error }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- <div class="mb-1">
+        <div class="input-group input-group-sm mb-1">
+          <span class="input-group-text" id="inputGroup-sizing-sm">Observaciones</span>
+          <input #observaciones maxlength="255" class="form-control" type="text" />
+          <p *ngIf="validate('observaciones').valid" class="text-danger">
+            {{ validate("observaciones").error }}
+          </p>
+        </div>
+      </div> -->
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- <div class="col-6 relative">
+      <div class="disabled" *ngIf="nro_factura"></div>
+      <app-products (sendToFatherP)="addProduct($event)"></app-products>
+    </div> -->
+    <div class="col-12">
+      <div class="row">
+        <div class="col-5" style="position: relative">
+          <div class="disabled" *ngIf="lockscards"></div>
+          <app-products
+            *ngIf="tableProducts"
+            [selected]="products"
+            (sendToF)="receiveToChild($event)"
+            (sendToFatherP)="receiveProductToChild($event)"
+            (sendToFatherPrecios)="receivePreciosToChild($event)"
+          ></app-products>
+        </div>
+
+        <div class="col-7">
+          <div class="card mb-4">
+            <div class="disabled" *ngIf="lockscards"></div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12">
+                  <!-- <button
+                    (click)="openModalProducts()"
+                    type="button"
+                    class="ms-2 btn btn-sm btn-primary float-end"
+                  >
+                    <i class="fa-solid fa-boxes-stacked"></i> Productos
+                  </button> -->
+
+                  <div
+                    class="input-group input-group-sm float-end"
+                    style="width: 200px"
+                  >
+                    <input
+                      #inputCode
+                      (keydown.enter)="enterProductCode($event)"
+                      type="text"
+                      class="form-control"
+                      placeholder="Código de barra"
+                      aria-describedby="button-addon2"
+                    />
+                    <button
+                      (click)="clickProductCode()"
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      id="button-addon2"
+                    >
+                      <i class="fas fa-search"></i>
+                    </button>
+
+                    <div class="lds-dual-ring" *ngIf="searchingProduct"></div>
+                  </div>
+
+                  <div
+                    class="input-group input-group-sm float-end me-3"
+                    style="width: 300px"
+                  >
+                    <span class="input-group-text" id="basic-addon1"
+                      >T. precios</span
+                    >
+                    <select
+                      (input)="changePriceG($event)"
+                      name=""
+                      class="form-control"
+                    >
+                      <option value="original">Original</option>
+                      <option
+                        value="{{ pg.id_precios }}"
+                        *ngFor="let pg of preciosG"
+                        [selected]=""
+                      >
+                        {{ pg.desc_precios }}
+                      </option>
+                      <option value="personalizado">Personalizado</option>
+                    </select>
+                    <!-- <input type="text" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="basic-addon1"> -->
+                  </div>
+
+                  <h6 class="m-0 mt-2">D. Factura</h6>
+                </div>
+              </div>
+
+              <div>
+                <table class="table" style="margin-top: 5px">
+                  <thead>
+                    <tr>
+                      <!-- <th scope="col">id</th> -->
+                      <th scope="col">Producto</th>
+                      <th scope="col">Cant.</th>
+                      <th scope="col" style="width: 115px">T. Precio</th>
+                      <th scope="col" style="width: 115px">Precio</th>
+                      <!-- <th scope="col">Iva</th> -->
+                      <th scope="col" style="max-width: 200px">Desc.</th>
+                      <th scope="col" style="width: 125px">S. no iva</th>
+                      <th scope="col" style="width: 100px">Stotal</th>
+                      <th scope="col">Acción</th>
+                    </tr>
+                  </thead>
+                  <tbody class="table-sm">
+                    <tr *ngFor="let prod of products; let index = index">
+                      <!-- <td scope="col">{{ prod.pro_id }}</td> -->
+                      <td scope="col">
+                        <input
+                          (input)="changeNameProduct($event)"
+                          id="{{ index }}"
+                          maxlength="255"
+                          type="text"
+                          value="{{ prod.pro_nombre }}"
+                          class="form-control"
+                          style="width: 150px"
+                        />
+                      </td>
+                      <td scope="col">
+                        <input
+                          id="{{ index }}"
+                          (input)="changeCant($event)"
+                          min="1"
+                          max="10000"
+                          type="text"
+                          value="{{ prod.cantidad }}"
+                          class="form-control"
+                          style="max-width: 60px; min-width: 50px"
+                        />
+                      </td>
+
+                      <td scope="col" ng-if="prod.precios.length != 0">
+                        <select
+                          id="{{ index }}"
+                          (input)="changePriceE($event)"
+                          name=""
+                          class="form-control"
+                        >
+                          <option value="original">
+                            Ori - {{ prod.precioOriginal }}
+                          </option>
+                          <option
+                            value="{{ price.id_precios }}"
+                            *ngFor="let price of prod.precios"
+                            [selected]="price.id_precios == prod.type_price"
+                          >
+                            {{ price.desc_precios }} - {{ price.monto }}
+                          </option>
+                          <option
+                            value="personalizado"
+                            [selected]="prod.type_price == 'personalizado'"
+                          >
+                            Personalizar
+                          </option>
+                        </select>
+                      </td>
+                      <td scope="col">
+                        <input
+                          min="0"
+                          step="0.01"
+                          id="{{ index }}"
+                          (input)="changePriceCustom($event)"
+                          [disabled]="
+                            prod.type_price != 'personalizado' ||
+                            !prod.type_price
+                          "
+                          type="text"
+                          class="form-control"
+                          value="{{ prod.pro_precioventa }}"
+                        />
+                      </td>
+                      <!-- <td scope="col">
+                      <span *ngIf="prod.pro_grabaiva == 1"> 12%</span>
+                      <span *ngIf="prod.pro_grabaiva == 0"> 0%</span>
+                    </td> -->
+                      <td scope="col" style="width: 110px">
+                        <div class="input-group m-0 p-0">
+                          <input
+                            *ngIf="prod.typeDesc == 'porcentage'"
+                            id="{{ index }}"
+                            (input)="changePorcentageDesc($event)"
+                            min="0"
+                            max="100"
+                            type="text"
+                            value="{{ prod.descPorcentage }}"
+                            class="form-control"
+                          />
+                          <input
+                            *ngIf="prod.typeDesc == 'dollar'"
+                            id="{{ index }}"
+                            (input)="changePorcentageDesc($event)"
+                            min="0"
+                            max="9999999999"
+                            type="text"
+                            value="{{ prod.descmonto }}"
+                            class="form-control"
+                          />
+                          <select
+                            style="
+                              width: 35px;
+                              min-width: 35px;
+                              max-width: 35px;
+                            "
+                            (input)="changeTypeDesc($event)"
+                            id="{{ index }}"
+                            class="form-control"
+                          >
+                            <option value="dollar"><b>$</b></option>
+                            <option value="porcentage"><b>%</b></option>
+                          </select>
+                        </div>
+                      </td>
+
+                      <td scope="col">
+                        {{ prod.totalsiniva | number : "0.2-4" }} $
+                      </td>
+                      <td scope="col">{{ prod.total | number : "0.2-4" }} $</td>
+                      <td scope="col" class="text-center">
+                        <button
+                          (click)="deleteProd(index)"
+                          class="btn btn-danger btn-xs-2"
+                        >
+                          <i class="fas fa-minus"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot style="border: none; line-height: 1; font-size: 15px">
+                    <!-- totaldescuento
+totalconniva
+totalsinniva
+total -->
+                    <tr *ngIf="products.length != 0">
+                      <th colspan="5" style="border: none"></th>
+                      <th style="border: none">Descontar:</th>
+                      <th style="border: none" colspan="2">
+                        <div
+                          class="input-group input-group-sm mb-1"
+                          style="width: 120px !important"
+                        >
+                          <input
+                            #changeDInput
+                            step="0.01"
+                            (input)="changeDiscount($event)"
+                            value="0"
+                            type="text"
+                            class="form-control"
+                          />
+
+                          <select
+                            style="max-width: 35px"
+                            (input)="changeTypeDiscountG($event)"
+                            #tipe_discount_g
+                            value=""
+                            class="form-control"
+                            name=""
+                            id=""
+                          >
+                            <option value="Dollar">$</option>
+                            <option value="Porcentage">%</option>
+                          </select>
+                        </div>
+                      </th>
+                    </tr>
+                    <tr *ngIf="products.length != 0">
+                      <th colspan="5" style="border: none"></th>
+                      <th style="border: none">Subtotal:</th>
+                      <th style="border: none" colspan="2">
+                        {{ totalsinniva | number : "0.2-2" }} $
+                      </th>
+                    </tr>
+
+                    <tr *ngIf="products.length != 0">
+                      <th colspan="5" style="border: none"></th>
+                      <th style="border: none">IVA:</th>
+                      <th style="border: none" colspan="2">
+                        {{ totalsinniva * 0.12 | number : "0.2-2" }} $
+                      </th>
+                    </tr>
+                    <tr *ngIf="products.length != 0">
+                      <th style="border: none" colspan="5"></th>
+                      <th style="border: none">DESCUENTO:</th>
+                      <th style="border: none" colspan="2">
+                        {{ totaldescuento | number : "0.2-2" }} $
+                      </th>
+                    </tr>
+                    <tr *ngIf="products.length != 0">
+                      <th style="border: none" colspan="5"></th>
+                      <th style="border: none; font-size: 20px">TOTAL:</th>
+                      <th style="border: none; font-size: 20px" colspan="2">
+                        {{ total | number : "0.2-2" }} $
+                      </th>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mt-2">
+            <div class="card-body" style="position: relative">
+              <div class="disabled" *ngIf="lockscards"></div>
+
+              <!-- <ul class="nav nav-tabs mt-3 " id="myTab " role="tablist ">
+                            <li class="nav-item " role="presentation ">
+                                <button (click)="cancelPayment='contado' " class="nav-link active " id="home-tab " data-bs-toggle="tab " data-bs-target="#home " type="button " role="tab " aria-controls="home " aria-selected="true ">
+                Contado
+              </button>
+                            </li>
+                            <li class="nav-item " role="presentation ">
+                                <button (click)="cancelPayment='crédito' " class="nav-link " id="profile-tab " data-bs-toggle="tab " data-bs-target="#profile " type="button " role="tab " aria-controls="profile " aria-selected="false ">
+                Crédito
+              </button>
+                            </li>
+
+                        </ul> -->
+
+              <app-methods-payment
+                [total]="total"
+                (sendDataToFather)="receivePayments($event)"
+                (sendToFather)="receiveToChild($event)"
+              ></app-methods-payment>
+              <!-- <div class="tab-content" id="myTabContent ">
+
+                <div
+                  *ngIf="cancelPayment == 'contado'"
+                  class="tab-pane fade show active"
+                >
+                  <table class="table mt-3" [cellPadding]="5">
+                    <thead>
+                      <tr>
+                        <th>Forma de pago</th>
+                        <th>Monto</th>
+                        <th>Acción</th>
+                        <td style="width: 10px">
+                          <div class="m-0 p-0">
+                            <button
+                              [disabled]="total == 0"
+                              (click)="openModalMethodPayment()"
+                              class="btn btn-xs btn-success m-0"
+                            >
+                              <i class="fas fa-plus"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let cp of cashPayments">
+                        <td>{{ cp.nombre_formapago }}</td>
+                        <td>{{ cp.amount }}</td>
+                        <td>
+                          <button
+                            (click)="openModalMethodPayment(cp)"
+                            class="btn btn-xs btn-warning"
+                          >
+                            <i class="fas fa-pencil-alt"></i>
+                          </button>
+                          <button
+                            [disabled]="total == 0"
+                            (click)="deleteCashPaymentP(cp.cashPayment_id)"
+                            class="btn btn-xs btn-danger"
+                            style="margin-left: 3px"
+                          >
+                            <i class="fas fa-minus"></i>
+                          </button>
+                        </td>
+                        <td></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <button
+                    [disabled]="total == 0"
+                    (click)="openModalMethodPayment(false, 3)"
+                    class="btn btn-sm float-end btn-white ms-1"
+                  >
+                    <i class="fas fa-credit-card" style="font-size: 90%"></i>
+                    Tarjeta
+                  </button>
+                  <button
+                    [disabled]="total == 0"
+                    (click)="openModalMethodPayment(false, 2)"
+                    class="btn btn-sm float-end btn-white ms-1"
+                  >
+                    <i class="fa-solid fa-money-check-dollar"></i> Cheque
+                  </button>
+                  <button
+                    [disabled]="total == 0"
+                    (click)="openModalMethodPayment(false, 1)"
+                    class="btn btn-sm float-end btn-white ms-1"
+                  >
+                    <i class="fas fa-dollar"></i> Efectivo
+                  </button>
+
+                  <p class="m-0">
+                    <b *ngIf="cashPaymentTotalPending() > 0"> Faltante: </b>
+                    <b *ngIf="cashPaymentTotalPending() <= 0"> Cambio: </b>
+                    <span
+                      [ngClass]="{
+                        'text-danger': cashPaymentTotalPending() > 0,
+                        'text-secondary': cashPaymentTotalPending() == 0,
+                        'text-success': cashPaymentTotalPending() < 0
+                      }"
+                    >
+                      <span *ngIf="cashPaymentTotalPending() < 0">{{
+                        cashPaymentTotalPending() * -1
+                      }}</span>
+                      <span *ngIf="cashPaymentTotalPending() >= 0">{{
+                        cashPaymentTotalPending()
+                      }}</span>
+                    </span>
+                    $
+                  </p>
+
+                </div>-->
+            </div>
+          </div>
+          <div class="card-footer bg-white">
+            <button
+              (click)="newF()"
+              type="button "
+              class="btn btn-primary float-end ms-1"
+              *ngIf="nro_factura"
+            >
+              <i class="fa-solid fa-hand-holding-dollar"></i> Nueva Venta
+            </button>
+
+            <button
+              [disabled]="lockscards"
+              [disabled]="total == 0"
+              (click)="openModalPay()"
+              type="button "
+              class="btn btn-primary float-end ms-1"
+            >
+              <i class="fas fa-credit-card"></i> Pagar
+            </button>
+
+            <!-- <button [disabled]="lockscards" (click)="pay()" type="button " class="btn btn-primary float-end ms-1">
+                <i class="fas fa-credit-card"></i> Pagar
+              </button> -->
+
+            <button
+              *ngIf="nro_factura"
+              [print]="['ticket']"
+              class="btn btn-success float-end"
+            >
+              <i class="fas fa-print"></i> Imprimir
+            </button>
+
+            <!-- <button *ngIf="nro_factura" (click)="openModalPrint()" type="button " class="btn btn-success float-end">
+                <i class="fas fa-print"></i> Imprimir
+              </button> -->
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CREATE -->
+<ng-template #modalPay let-c="close " let-d="dismiss ">
+  <div class="modal-header p-3">
+    <h5 class="modal-title" ngbAutofocus>Pagar</h5>
+    <button (click)="hideModals()" type="button " class="btn-close"></button>
+  </div>
+  <div class="modal-body p-3">
+    <div class="input-group input-group-lg mb-2">
+      <div class="input-group-prepend" style="width: 100px">
+        <span class="input-group-text" id="basic-addon1">Total</span>
+      </div>
+      <input
+        readonly
+        type="text"
+        class="form-control"
+        placeholder=""
+        value="{{ total }}"
+      />
+    </div>
+    <div class="input-group input-group-lg mb-2">
+      <div class="input-group-prepend" style="width: 100px">
+        <span class="input-group-text" id="basic-addon1">Recibido</span>
+      </div>
+      <input
+        (change)="changeReceived($event)"
+        (keyup)="changeReceived($event)"
+        type="text"
+        class="form-control"
+        placeholder=""
+        value="{{ received }}"
+      />
+    </div>
+    <div class="input-group input-group-lg mb-2">
+      <div class="input-group-prepend" style="width: 100px">
+        <span
+          *ngIf="cambioOf() == 'danger'"
+          class="input-group-text"
+          id="basic-addon1"
+          >Faltante</span
+        >
+        <span
+          *ngIf="cambioOf() == 'secondary' || cambioOf() == 'success'"
+          class="input-group-text"
+          id="basic-addon1"
+          >Cambio</span
+        >
+      </div>
+
+      <input
+        readonly
+        [ngClass]="{
+          'text-danger': cambioOf() == 'danger',
+          'text-secondary': cambioOf() == 'secondary',
+          'text-success': cambioOf() == 'success'
+        }"
+        type="text"
+        class="form-control"
+        placeholder=""
+        value="{{ cambio() }}"
+      />
+    </div>
+  </div>
+  <div class="modal-footer p-3">
+    <button
+      (click)="hideModals()"
+      type="button "
+      class="btn-lg btn btn-secondary"
+    >
+      <i class="fas fa-times"></i> Cerrar
+    </button>
+    <button
+      (click)="pay()"
+      type="button "
+      class="btn-lg btn btn-primary float-end ms-1"
+    >
+      <i class="fas fa-credit-card"></i> Pagar
+    </button>
+  </div>
+</ng-template>
+
+<!-- MODAL CREATE -->
+<ng-template #modalClients let-c="close " let-d="dismiss ">
+  <div class="modal-header p-3">
+    <h5 class="modal-title" ngbAutofocus>Clientes</h5>
+    <button (click)="hideModals()" type="button " class="btn-close"></button>
+  </div>
+  <div class="modal-body p-3">
+    <app-clients
+      (sendDataToF)="receiveDataToChild($event)"
+      *ngIf="tableClients"
+    ></app-clients>
+  </div>
+  <div class="modal-footer p-3">
+    <button (click)="hideModals()" type="button " class="btn btn-secondary">
+      Cerrar
+    </button>
+  </div>
+</ng-template>
+
+<!-- MODAL CLIENT -->
+<ng-template #modalClient let-c="close " let-d="dismiss ">
+  <app-add-client
+    (sendToF)="receiveToChild('hideModal')"
+    [clientSelected]="client"
+    (sendToDataF)="receiveDataToChild($event)"
+    *ngIf="formClient"
+  ></app-add-client>
+</ng-template>
+
+<!-- MODAL PRODUCTS -->
+<ng-template #modalProducts let-c="close " let-d="dismiss ">
+  <!-- <app-products [selected]="products" (sendToF)="receiveToChild($event) " (sendToFatherP)="receiveProductToChild($event) " *ngIf="formProducts "></app-products> -->
+</ng-template>
+
+<ng-template #modalMethodPayment let-c="close " let-d="dismiss ">
+  <app-add-method-payment
+    [pagarm]="pagarm"
+    [maxAmount]="maxAmount"
+    *ngIf="formMethodPayment"
+    [wayPayment]="wayPayment"
+    [cashPayments]="cashPayments"
+    [total]="total"
+    [cancelPayment]="cancelPayment"
+    [editPaymentMethod]="editPaymentMethod"
+    (sendToF)="receiveToChild($event)"
+  ></app-add-method-payment>
+</ng-template>
+
+<ng-template #modalWarning let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="m-0 text-warning"><i class="fas fa-info"></i> Atencion</h4>
+  </div>
+  <div class="modal-body">
+    <p class="m-0">{{ textModalWarning }}</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline-dark" (click)="hideModals()">
+      Aceptar
+    </button>
+  </div>
+</ng-template>
+
+<!-- <ng-template #modalPrint let-c="close " let-d="dismiss"> -->
+<!-- PRINT -->
+<!-- <div class="modal-header">
+
+    <h5 class="m-0">Factura de venta</h5>
+  </div> -->
+<!-- <div class="modal-body" style="background: rgb(228, 228, 228)"> -->
+<!-- style="overflow: hidden;height: 0;" -->
+<!-- fa-border
+    <div *ngIf="invoicePrint">
+      {{invoicePrint.venta | json}}
+    </div>  -->
+
+<div style="overflow: hidden; height: 0px">
+  <div
+    *ngIf="invoicePrint"
+    class="ticket"
+    style="width: 300px; padding: 40px 5px 40px 5px; background: white"
+    id="ticket"
+  >
+    <h6 style="margin: " class="text-center">
+      {{ invoicePrint.empresa1.nom_emp }}
+    </h6>
+
+    <h6 *ngIf="caja_id == 10" style="margin: " class="text-center">
+       EL MUNDO DEL EMPAQUE
+    </h6>
+
+     <h6 *ngIf="caja_id == 1" style="margin: " class="text-center">
+      LA CASA DEL EMPAQUE
+    </h6>
+
+
+    <p *ngIf="invoicePrint.empresa1.ruc_emp" style="margin: 0">
+      <strong> RUC: </strong> {{ invoicePrint.empresa1.ruc_emp }}
+    </p>
+    <p *ngIf="invoicePrint.empresa1.tlf_emp" style="margin: 0">
+      <strong>Telf:</strong> {{ invoicePrint.empresa1.tlf_emp }}
+    </p>
+    <p *ngIf="invoicePrint.empresa1.dir_emp" style="margin: 0">
+      <strong>Dirección: </strong> {{ invoicePrint.empresa1.dir_emp }}
+    </p>
+    <!-- Nombre empresa -->
+    <!-- ruc empresa -->
+    <!-- direccion empresa -->
+    <!-- tele empresa -->
+    <p style="margin: 0">
+      <strong>Nro. Documento: </strong> {{ invoicePrint.venta.nro_factura }}
+    </p>
+    <p style="margin: 0"><strong>Fecha:</strong> {{ invoicePrint.venta.fecha }}</p>
+    <p style="margin: 0"><strong>Cliente:</strong> {{ invoicePrint?.cliente?.nom_cliente }}</p>
+    <p style="margin: 0">
+      {{ invoicePrint.direccion_cliente }}
+    </p>
+    <p style="margin: 0">
+      {{ documentClient(invoicePrint.cliente) }}
+    </p>
+    <p style="margin: 0"><strong>Tel:</strong> {{ invoicePrint.telefonos_cliente }}</p>
+    <p style="margin: 0"><strong>Correo:</strong> {{ invoicePrint.correo_cliente }}</p>
+    <br />
+      <h6>PRODUCTOS</h6>
+
+    <table style="width: 100%; margin: 0">
+      <tr>
+        <th>Producto</th>
+        <th>Cant.</th>
+        <th>P. Unit</th>
+        <th>P. Tot</th>
+      </tr>
+      <tr *ngFor="let prod of invoicePrint?.detalles1">
+        <td>
+          <div
+            style="
+              width: 110px;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              overflow: hidden;
+            "
+          >
+            {{ prod.pro_nombre }}
+          </div>
+        </td>
+        <td>{{ prod.cantidad | number : "0.2-4" }}</td>
+        <td>{{ prod.precio | number : "0.2-4" }}</td>
+        <td>{{ prod.subtotal | number : "0.2-4" }}</td>
+      </tr>
+    </table>
+    <br />
+    <div *ngIf="invoicePrint?.empresa2">
+      <p style="margin: 0" class="text-center">
+        {{ invoicePrint.empresa2.nom_emp }}
+      </p>
+      <p style="margin: 0"> <strong> RUC: </strong> {{ invoicePrint.empresa2.ruc_emp }}</p>
+      <p style="margin: 0">
+        {{ invoicePrint.empresa2.dir_emp }}
+      </p>
+      <p style="margin: 0">
+        {{ invoicePrint.empresa2.telf_emp }}
+      </p>
+
+
+      <br />
+      <h6>PRODUCTOS</h6>
+
+      <table style="width: 100%; margin: 0">
+        <tr>
+          <th>Producto</th>
+          <th>Cant.</th>
+          <th>P. Unit</th>
+          <th>P. Tot</th>
+        </tr>
+        <tr *ngFor="let prod of invoicePrint?.detalles2">
+          <td>
+            <div
+              style="
+                width: 100%;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+              "
+            >
+              {{ prod.pro_nombre }}
+            </div>
+          </td>
+          <td>{{ prod.cantidad | number : "0.2-4" }}</td>
+          <td>{{ prod.precio | number : "0.2-4" }}</td>
+          <td>{{ prod.subtotal | number : "0.2-4" }}</td>
+        </tr>
+      </table>
+    </div>
+    <div style="width: 100%; padding-right: 12px">
+
+
+      <table style="width: 100%; margin-right: 12px">
+        <tr>
+          <th style="text-align: right"></th>
+          <th style="text-align: right">SUBTOTAL IVA 12%:</th>
+          <td style="text-align: right">
+            {{ invoicePrint.venta.subconiva | number : "0.2-2" }}
+          </td>
+        </tr>
+        <tr>
+          <th style="text-align: right"></th>
+          <th style="text-align: right">SUBTOTAL IVA 0%:</th>
+          <td style="text-align: right">
+            {{ invoicePrint.subtotaliva0 | number : "0.2-2" }}
+          </td>
+        </tr>
+        <tr>
+          <th style="text-align: right"></th>
+          <th style="text-align: right">DESCUENTO:</th>
+          <td style="text-align: right">
+            {{ invoicePrint.venta.desc_monto | number : "0.2-2" }}
+          </td>
+        </tr>
+        <tr>
+          <th style="text-align: right"></th>
+          <th style="text-align: right">IVA:</th>
+          <td style="text-align: right">
+            {{ invoicePrint.venta.montoiva | number : "0.2-2" }}
+          </td>
+        </tr>
+
+        <tr>
+          <th></th>
+          <th style="text-align: right">TOTAL</th>
+          <td style="text-align: right">
+            {{ invoicePrint.venta.montototal | number : "0.2-2" }}
+          </td>
+        </tr>
+      </table>
+
+      <br />
+      <h6>FORMAS DE PAGO</h6>
+      <table style="width: 100%; margin-right: 12px">
+        <tr *ngFor="let cp of payments; let index = index">
+          <th></th>
+          <th style="text-align: right">{{ cp.type }}</th>
+          <td style="text-align: right">
+            {{ cp.amount }}
+          </td>
+        </tr>
+
+        <tr>
+          <th></th>
+          <th style="text-align: right">RECIBIDO</th>
+          <td style="text-align: right">
+            {{ totalReceived() }}
+          </td>
+        </tr>
+      </table>
+      <br>
+      <p class="text-center">
+        Una vez salida la mercadería del almacén, no se aceptan devoluciones ni
+        cambios de productos por insatisfacción del cliente.
+      </p>
+    </div>
+  </div>
+
+  <!-- </div> -->
+  <!-- <div class="modal-footer">
+    <button (click)="hideModals()" type="button" class="btn btn-sm btn-secondary">
+      <i class="fas fa-times"></i> Cerrar
+    </button>
+    <button [print]="['demo']" class="btn btn-sm btn-block btn-success">
+      <i class="fas fa-print"></i> Imprimir
+    </button>
+  </div> -->
+  <!-- </ng-template> -->
+  <!-- {{cambio2()}}  //////////////  {{total}} -->
+</div>

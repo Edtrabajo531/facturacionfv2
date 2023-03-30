@@ -1,0 +1,65 @@
+.container-p {
+    max-width: 1600px;
+    margin: auto;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.row .float-start {
+    padding: 0;
+    padding-right: 5px;
+}
+
+.card-client {
+    font-size: 13px;
+}
+
+.table {
+    font-size: 12px;
+}
+
+.table-hover:hover {
+    cursor: pointer;
+}
+
+.btn-xs-2 {
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+    padding: 1px;
+}
+
+
+/* TICKET */
+
+.ticket {
+    width: 100%;
+    padding: 40px 5px 40px 5px;
+    margin: auto;
+    background: rgb(241, 241, 241);
+    font-size: 10px;
+    border-radius: 5px;
+}
+
+.ticket p {
+    font-size: 10px;
+    margin: auto;
+}
+
+.relative {
+    position: relative;
+}
+
+.card {
+    position: relative;
+}
+
+.disabled {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(243, 243, 243, 0.288);
+    z-index: 99;
+}
