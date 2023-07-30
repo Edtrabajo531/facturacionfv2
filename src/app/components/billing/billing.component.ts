@@ -1,4 +1,10 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
@@ -94,7 +100,7 @@ export class BillingComponent implements OnInit {
   time: any;
   applyDiscountG = false;
   resetDiscount = false;
-  type_discount_g = "Dollar";
+  type_discount_g = 'Dollar';
   descontarPorcentaje: any = 0;
   descontar: any = 0;
   type_priceG: any = 'original';
@@ -108,63 +114,65 @@ export class BillingComponent implements OnInit {
     public DecimalP: DecimalPipe,
     public datePipe: DatePipe,
     public activatedR: ActivatedRoute
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     let caja = this.activatedR.snapshot.paramMap.get('caja_id');
+    this.caja_id = caja;
+    // if (caja == "caja-1") {
+    //   this.caja_id = 1;
+    // } else if (caja == "caja-2") {
+    //   this.caja_id = 10;
+    // } else {
 
-    if (caja == "caja-1") {
-      this.caja_id = 1;
-    } else if (caja == "caja-2") {
-      this.caja_id = 10;
-    } else {
+    //   window.location.href = 'http://localhost/all/';
 
-      window.location.href = 'http://localhost/all/';
+    //   // window.location.href = 'https://csempaques.actfacturas.com';
+    //   return;
+    // }
+    this.validateCajaEstatus();
+  }
 
-      // window.location.href = 'https://csempaques.actfacturas.com';
-      return;
-    }
-
+  validateCajaEstatus() {
     this.billingS.validateCashStatus(this.caja_id).subscribe((data: any) => {
       console.log(data);
+      console.log(data);
+      console.log(data);
+      console.log(data);
+      console.log(data);
 
-      if (data.status != 'ok') {
+
+      if (data.status == 'no existe') {
+        setTimeout(() => {
+          this.openModalWarning('La caja no existe.');
+        }, 500);
+
         this.loading = false;
         this.lockscards = true;
-        this.openModalWarning(
-          'La caja no se encuentra abierta en este momento.'
-        );
+      } else if (data.status != 'ok') {
+        this.loading = false;
+        this.lockscards = true;
+        setTimeout(() => {
+          this.openModalWarning(
+            'La caja no se encuentra abierta en este momento.'
+          );
+        }, 500);
+
         return;
       }
-
-      // receiveDataToChild(data: any) {
-      //   this.client = data;
-      //   this.form.controls['id_cliente'].setValue(data.id_cliente);
-      //   this.form.controls['tipo_ident_cliente'].setValue(data.tipo_ident_cliente);
-      //   this.form.controls['ident_cliente'].setValue(data.ident_cliente);
-      //   this.hideModals();
-      // }
-
-      // this.client = { tipo_ident_cliente: 'R'};
 
       this.invoiceCalculations();
 
       this.formR();
       this.resetClient();
     });
-
-
   }
-
-
-
 
   reloadTable() {
     this.tableProducts = false;
     setTimeout(() => {
       this.tableProducts = true;
-
-    }, 100)
+    }, 100);
   }
   new() {
     window.location.reload();
@@ -182,7 +190,6 @@ export class BillingComponent implements OnInit {
           [Validators.required, this.validatorsS.number],
         ],
 
-
         change_ident: [0],
       },
       { validator: this.validateTypeDoc }
@@ -191,7 +198,6 @@ export class BillingComponent implements OnInit {
     this.form.controls['id_cliente'].setValue(1);
 
     console.log(this.form.controls['id_cliente'].value);
-
   }
 
   validate(name: string) {
@@ -231,7 +237,6 @@ export class BillingComponent implements OnInit {
     }
   }
 
-
   receivePreciosToChild(precios: any) {
     this.preciosG = precios;
   }
@@ -241,7 +246,6 @@ export class BillingComponent implements OnInit {
 
     if (message == 'hideModal') {
       this.hideModals();
-
     } else if (message == 'hideLoader') {
       this.loading = false;
     }
@@ -266,10 +270,6 @@ export class BillingComponent implements OnInit {
     this.addProduct(data);
   }
 
-
-
-
-
   searchClient() {
     clearTimeout(this.timeout);
     this.timeout = setTimeout(() => {
@@ -292,15 +292,17 @@ export class BillingComponent implements OnInit {
 
   searchProductCode(code: number) {
     this.searchingProduct = true;
-    this.billingS.searchProductCode(code, this.caja_id).subscribe((data: any) => {
-      if (data.result == 'not exist') {
-        this.toastrS.warning('Producto no encontrado.');
-        this.searchingProduct = false;
-      } else {
-        this.addProduct(data.data);
-        this.searchingProduct = false;
-      }
-    });
+    this.billingS
+      .searchProductCode(code, this.caja_id)
+      .subscribe((data: any) => {
+        if (data.result == 'not exist') {
+          this.toastrS.warning('Producto no encontrado.');
+          this.searchingProduct = false;
+        } else {
+          this.addProduct(data.data);
+          this.searchingProduct = false;
+        }
+      });
   }
 
   onChangeIdent() {
@@ -395,10 +397,16 @@ export class BillingComponent implements OnInit {
       );
   }
 
-  openModalMethodPayment(editPaymentMethod: any = null, wayPayment: any = null, pagarm: any = null) {
+  openModalMethodPayment(
+    editPaymentMethod: any = null,
+    wayPayment: any = null,
+    pagarm: any = null
+  ) {
     this.pagarm = pagarm;
     if (!editPaymentMethod) {
-      var exist: any = this.cashPayments.filter((item: any) => item.id_formapago == wayPayment);
+      var exist: any = this.cashPayments.filter(
+        (item: any) => item.id_formapago == wayPayment
+      );
       if (Object.keys(exist).length > 0) {
         editPaymentMethod = exist[0];
       }
@@ -447,6 +455,7 @@ export class BillingComponent implements OnInit {
 
   openModalWarning(text: string) {
     this.textModalWarning = text;
+
     this.modalS
       .open(this.modalWarning, {
         ariaLabelledBy: 'modal-basic-title',
@@ -474,7 +483,6 @@ export class BillingComponent implements OnInit {
   // }
 
   openModalProducts() {
-
     this.formProducts = true;
 
     this.modalS
@@ -522,7 +530,6 @@ export class BillingComponent implements OnInit {
     //   return;
     // }
 
-
     for (var pro of this.products) {
       if (!pro.pro_precioventa || !pro.cantidad) {
         this.loading = false;
@@ -536,7 +543,6 @@ export class BillingComponent implements OnInit {
 
       this.warning('El valor de la factura debe ser superior a 0');
       return;
-
     }
 
     let credito = false;
@@ -546,15 +552,13 @@ export class BillingComponent implements OnInit {
       }
     });
 
-
     if (credito && this.client.nom_cliente == 'CONSUMIDOR FINAL') {
       this.loading = false;
-      this.warning('No se puede generar un crédito para un cliente "Consumidor final"');
+      this.warning(
+        'No se puede generar un crédito para un cliente "Consumidor final"'
+      );
       return;
-
     }
-
-
 
     this.form.markAllAsTouched();
     let observaciones = this.observaciones.nativeElement.value;
@@ -580,7 +584,7 @@ export class BillingComponent implements OnInit {
         tipo_documento,
         this.caja_id,
         this.totaldescuento,
-        this.descontar ? this.descontar : 0,
+        this.descontar ? this.descontar : 0
       )
       .subscribe(
         (data: any) => {
@@ -617,7 +621,6 @@ export class BillingComponent implements OnInit {
     }
 
     if (!exist) {
-
       data.typeDesc = 'dollar';
       data.cantidad = 1;
       data.desc = 0;
@@ -628,35 +631,32 @@ export class BillingComponent implements OnInit {
       data.porcdesc = 0;
       data.descsubtotal = 0;
 
-
-
-      if (data.pro_grabaiva == "1") {
-        let price = Number(data.pro_precioventa) + (Number(data.pro_precioventa) * 0.12);
+      if (data.pro_grabaiva == '1') {
+        let price =
+          Number(data.pro_precioventa) + Number(data.pro_precioventa) * 0.12;
         data.pro_precioventa = this.DecimalP.transform(price, '1.2-4');
       } else {
-        data.pro_precioventa = this.DecimalP.transform(data.pro_precioventa, '1.2-4');
+        data.pro_precioventa = this.DecimalP.transform(
+          data.pro_precioventa,
+          '1.2-4'
+        );
       }
-
 
       data.precioOriginal = data.pro_precioventa;
       data.price_correct = data.pro_precioventa;
 
       if (this.type_priceG == 'original') {
-
         data.type_price = 'original';
-
       } else if (this.type_priceG == 'personalizado') {
         data.type_price = 'personalizado';
-
       } else {
-
-        var precio: any = data.precios.filter((item: any) => item.id_precios == this.type_priceG);
+        var precio: any = data.precios.filter(
+          (item: any) => item.id_precios == this.type_priceG
+        );
         data.pro_precioventa = precio[0].monto;
 
         data.type_price = this.type_priceG;
       }
-
-
 
       data.totalsiniva = data.cantidad * data.pro_precioventa;
       data.totalsiniva_nodesc = data.cantidad * data.pro_precioventa;
@@ -667,11 +667,9 @@ export class BillingComponent implements OnInit {
     }
     this.invoiceCalculations();
     console.log(this.products);
-
   }
 
   invoiceCalculations() {
-
     this.total = 0;
     this.totaldescuento = 0;
     this.totalconniva = 0;
@@ -681,9 +679,11 @@ export class BillingComponent implements OnInit {
 
     let totalPrices = 0;
 
-
     for (let pro of this.products) {
-      let pro_precioventa: any = this.DecimalP.transform(pro.pro_precioventa, '1.2-4');
+      let pro_precioventa: any = this.DecimalP.transform(
+        pro.pro_precioventa,
+        '1.2-4'
+      );
       pro.totalsiniva_nodesc = pro.cantidad * (pro_precioventa / 1.12);
 
       if (this.applyDiscountG) {
@@ -702,8 +702,6 @@ export class BillingComponent implements OnInit {
         }
       }
 
-
-
       // if (pro.pro_grabaiva == 1) {
 
       // pro.descsubtotal = ((pro.cantidad * pro_precioventa) - porcentajeiva);
@@ -712,8 +710,7 @@ export class BillingComponent implements OnInit {
       // pro.totalsiniva = ((pro.cantidad * pro_precioventa) - pro.descmonto) - (((pro.cantidad * pro_precioventa) - pro.descmonto) * 0.12);
       pro.totalsiniva = pro.cantidad * (pro_precioventa / 1.12) - pro.descmonto;
 
-      pro.total = (pro.totalsiniva * 1.12);
-
+      pro.total = pro.totalsiniva * 1.12;
 
       // } else {
       //   pro.descsubtotal = (pro.cantidad * pro_precioventa);
@@ -748,7 +745,6 @@ export class BillingComponent implements OnInit {
     this.applyDiscountG = false;
     this.resetDiscount = false;
 
-
     this.childMP.autoPayment(this.total);
     // this.addPaymentMethod();
   }
@@ -768,7 +764,9 @@ export class BillingComponent implements OnInit {
   // costo_total
 
   deleteProd(id: number) {
-    this.products = this.products.filter((item: any, index: any) => index !== id);
+    this.products = this.products.filter(
+      (item: any, index: any) => index !== id
+    );
     this.changeDInput.nativeElement.value = 0;
     this.descontar = 0;
     this.invoiceCalculations();
@@ -823,12 +821,9 @@ export class BillingComponent implements OnInit {
     var regexp = /^\d+(\.\d+)?$/;
     // setTimeout(() => {
 
-
     this.products.forEach((pro: any, index: any) => {
       if (id == index) {
-
         if (!value && Number.isNaN(Number(value))) {
-
           // event.target.value = 0;
           // pro.descmonto = 0;
           // pro.porcdesc = 0;
@@ -842,18 +837,12 @@ export class BillingComponent implements OnInit {
         } else if (pro.typeDesc == 'dollar') {
           let totalNoIvaNoDesc = pro.cantidad * pro.totalsiniva_nodesc;
 
-
           if (value > totalNoIvaNoDesc) {
-
-
             pro.descmonto = totalNoIvaNoDesc;
           } else if (value > 9999999999) {
-
-
             event.target.value = 9999999999;
             pro.descmonto = 9999999999;
           } else {
-
             pro.descmonto = value;
           }
         }
@@ -861,7 +850,6 @@ export class BillingComponent implements OnInit {
     });
     this.invoiceCalculations();
     // }, 100);
-
   }
 
   changePriceG(e: any) {
@@ -882,7 +870,6 @@ export class BillingComponent implements OnInit {
           pro.pro_precioventa = pro.precioOriginal;
           pro.price_correct = pro.precioOriginal;
           pro.type_price = 'personalizado';
-
         }
       });
     } else if (value == 'original') {
@@ -890,7 +877,9 @@ export class BillingComponent implements OnInit {
       pro.price_correct = pro.precioOriginal;
       pro.type_price = value;
     } else {
-      var precio: any = pro.precios.filter((item: any) => item.id_precios == value);
+      var precio: any = pro.precios.filter(
+        (item: any) => item.id_precios == value
+      );
       pro.pro_precioventa = precio[0].monto;
       pro.price_correct = precio[0].monto;
       pro.type_price = value;
@@ -903,7 +892,6 @@ export class BillingComponent implements OnInit {
     let value = event.target.value;
     let id = event.target.id;
     this.changePrice(value, id);
-
   }
 
   changeTypeDesc(event: any) {
@@ -936,15 +924,14 @@ export class BillingComponent implements OnInit {
     } else {
       this.products.forEach((pro: any, index: any) => {
         if (id == index) {
-          pro.pro_precioventa = "";
-          event.target.value = "";
+          pro.pro_precioventa = '';
+          event.target.value = '';
         }
       });
     }
     this.invoiceCalculations();
     // }, 100)
   }
-
 
   changeTypeDiscountG(event: any) {
     let value = event.target.value;
@@ -970,7 +957,7 @@ export class BillingComponent implements OnInit {
           descontar == 100;
           event.target.value = 100;
         }
-        descontar = totalPrices * descontar / 100;
+        descontar = (totalPrices * descontar) / 100;
       } else {
         this.descontarPorcentaje = 0;
       }
@@ -983,7 +970,6 @@ export class BillingComponent implements OnInit {
         if (this.type_discount_g == 'Dollar') {
           event.target.value = totalPrices;
         }
-
       } else {
         this.descontar = this.DecimalP.transform(descontar, '1.2-4');
         if (this.type_discount_g == 'Dollar') {
@@ -992,21 +978,21 @@ export class BillingComponent implements OnInit {
       }
     } else {
       this.resetDiscount = true;
-      event.target.value = "";
+      event.target.value = '';
     }
     this.invoiceCalculations();
     // }, 100)
   }
-
-
 
   formatNumber(number: number) {
     return this.DecimalP.transform(number, '1.2-4');
   }
 
   newF() {
+    this.validateCajaEstatus();
+
     this.descontar = 0;
-    this.tipo_documento.nativeElement.value = "01";
+    this.tipo_documento.nativeElement.value = '01';
     this.resetClient();
     this.products = [];
     this.invoiceCalculations();
@@ -1015,9 +1001,9 @@ export class BillingComponent implements OnInit {
     this.childMP.payments = [];
 
     this.creditPayments = [];
-    this.nro_factura = "";
+    this.nro_factura = '';
     this.invoicePrint = false;
-    this.observaciones.nativeElement.value = "";
+    this.observaciones.nativeElement.value = '';
     this.lockscards = false;
     this.type_priceG = 'original';
   }
@@ -1032,25 +1018,21 @@ export class BillingComponent implements OnInit {
       this.form.reset();
       this.client = { tipo_ident_cliente: tident, nom_cliente: '' };
       this.form.controls['tipo_ident_cliente'].setValue(tident);
-
     }
   }
 
   resetClient() {
-
     this.client = { tipo_ident_cliente: 'R', nom_cliente: 'CONSUMIDOR FINAL' };
     this.form.controls['id_cliente'].setValue(1);
-    this.form.controls['tipo_ident_cliente'].setValue("R");
-    this.form.controls['ident_cliente'].setValue("9999999999999");
+    this.form.controls['tipo_ident_cliente'].setValue('R');
+    this.form.controls['ident_cliente'].setValue('9999999999999');
     this.hideModals();
   }
   changeReceived(e: any) {
     this.received = e.target.value;
     console.log(this.received);
-
   }
   openModalPay() {
-
     this.received = this.totalReceived();
     this.modalS
       .open(this.modalPay, {
@@ -1090,11 +1072,11 @@ export class BillingComponent implements OnInit {
   cambioOf() {
     var cambio = this.cambio();
     if (Number(cambio) > 0) {
-      return "success";
+      return 'success';
     } else if (Number(cambio) == 0) {
-      return "secondary";
+      return 'secondary';
     } else {
-      return "danger";
+      return 'danger';
     }
   }
 
@@ -1105,7 +1087,7 @@ export class BillingComponent implements OnInit {
     this.inputCode.nativeElement.focus();
     setTimeout(() => {
       this.inputCode.nativeElement.value = '';
-    }, 100)
+    }, 100);
   }
 
   @HostListener('document:keydown.shift.n') undo2(event: KeyboardEvent) {
@@ -1132,10 +1114,4 @@ export class BillingComponent implements OnInit {
       this.toastrS.warning('El total de la factura debe ser superior a 0.');
     }
   }
-
-
-
-
 }
-
-

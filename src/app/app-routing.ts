@@ -3,7 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { BillingComponent } from './components/billing/billing.component';
 
 const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'desc' },
+  { path: '', pathMatch: 'full', redirectTo: '1' },
   { path: ':caja_id', pathMatch: 'full', component: BillingComponent },
   { path: 'desc', pathMatch: 'full', component: BillingComponent },
 

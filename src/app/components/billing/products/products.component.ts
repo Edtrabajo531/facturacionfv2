@@ -1,7 +1,19 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal, ModalDismissReasons, NgbModalConfig } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbModal,
+  ModalDismissReasons,
+  NgbModalConfig,
+} from '@ng-bootstrap/ng-bootstrap';
 import { DataTableDirective } from 'angular-datatables';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
@@ -10,11 +22,9 @@ import { BillingService } from '../../../services/billing.service';
 @Component({
   selector: 'app-products',
   templateUrl: './products.component.html',
-  styleUrls: ['./products.component.css']
+  styleUrls: ['./products.component.css'],
 })
-
 export class ProductsComponent implements OnInit {
-
   @ViewChild(DataTableDirective, { static: false })
   datatableElement: DataTableDirective;
   dtOptions: DataTables.Settings = {};
@@ -23,7 +33,7 @@ export class ProductsComponent implements OnInit {
   formCreate = false;
   formEdit = false;
   dataEdit = [];
-  caja_id = 0;
+  caja_id:any = 0;
   @Input() selected: any;
 
   @Output() sendToFatherP = new EventEmitter<any>();
@@ -37,7 +47,7 @@ export class ProductsComponent implements OnInit {
     config: NgbModalConfig,
     private ToastrS: ToastrService,
     private decimalP: DecimalPipe,
-    private activatedR:ActivatedRoute
+    private activatedR: ActivatedRoute
   ) {
     config.backdrop = 'static';
     config.keyboard = false;
@@ -50,35 +60,35 @@ export class ProductsComponent implements OnInit {
     //   dtInstance.ajax.reload();
     // });
   }
-  sendToFatherPre(precios:any){
+  sendToFatherPre(precios: any) {
     console.log(precios);
 
-    this.sendToFatherPrecios.emit(precios)
-
+    this.sendToFatherPrecios.emit(precios);
   }
   sendToFatherProd(data: any) {
-    this.sendToFatherP.emit(data)
+    this.sendToFatherP.emit(data);
   }
   sendToFather(message: any) {
-
-
     this.sendToF.emit(message);
   }
   ngOnInit(): void {
-
     let caja = this.activatedR.snapshot.paramMap.get('caja_id');
-    if(caja == "caja-1"){
-      this.caja_id = 1;
-    }else if(caja == "caja-2"){
-      this.caja_id = 10;
-    }else{
-      window.location.href = 'https://csempaques.actfacturas.com';
-      return;
-    }
+    this.caja_id = caja;
+    // if (caja == 'caja-1') {
+    //   this.caja_id = 1;
+    // } else if (caja == 'caja-2') {
+    //   this.caja_id = 10;
+    // } else {
+    //   window.location.href = 'https://csempaques.actfacturas.com';
+    //   return;
+    // }
 
     this.dtOptions = {
-      order: [[1, "asc"]],
-      lengthMenu: [[10, 20, 50, -1], [10, 20, 50, "Todas"]],
+      order: [[1, 'asc']],
+      lengthMenu: [
+        [10, 20, 50, -1],
+        [10, 20, 50, 'Todas'],
+      ],
       pageLength: 10,
       responsive: true,
       pagingType: 'full_numbers',
@@ -86,40 +96,50 @@ export class ProductsComponent implements OnInit {
           t
           <'row'<'col-md-6'i><'col-md-6'p>>`,
       language: {
-        "lengthMenu": `Filas _MENU_`,
-        "zeroRecords": "Datos no disponibles",
-        "info": "Página <b>_PAGE_</b> de <b>_PAGES_</b>",
-        "infoEmpty": "Datos no disponibles",
-        "infoFiltered": "( Filtrando de _MAX_ entradas )",
-        search: '<span class="hide-sm" style="margin-right:-4px;padding:5px 13px 8px 14px;border:solid 1px var(--grey);border-top-left-radius:4px;border-bottom-left-radius:4px;border-right:none" ><i class="fa fa-search"></i></span>',
-        searchPlaceholder: " Buscar",
-        "paginate": {
-          "first": "",
-          "last": "",
-          "next": "Sig.",
-          "previous": "Ant."
+        lengthMenu: `Filas _MENU_`,
+        zeroRecords: 'Datos no disponibles',
+        info: 'Página <b>_PAGE_</b> de <b>_PAGES_</b>',
+        infoEmpty: 'Datos no disponibles',
+        infoFiltered: '( Filtrando de _MAX_ entradas )',
+        search:
+          '<span class="hide-sm" style="margin-right:-4px;padding:5px 13px 8px 14px;border:solid 1px var(--grey);border-top-left-radius:4px;border-bottom-left-radius:4px;border-right:none" ><i class="fa fa-search"></i></span>',
+        searchPlaceholder: ' Buscar',
+        paginate: {
+          first: '',
+          last: '',
+          next: 'Sig.',
+          previous: 'Ant.',
         },
       },
       ajax: (dataTablesParameters: any, callback) => {
         this.billingS.products(this.caja_id).subscribe((data: any) => {
-          console.log("data");
+          console.log('data');
           console.log(data);
-          console.log("data");
+          console.log('data');
 
           var data2 = data.productos;
-
-
-
+          data2.forEach((el: any) => {
+            el.precios.forEach((p: any) => {
+              // if (el.pro_nombre == 'ABRAZADERA 1/2 X8MM X5 CENTURY') {
+                let monto: any = 0;
+                if (el.pro_grabaiva) {
+                  monto = p.monto;
+                  monto = monto * 1.12;
+                  p.monto = parseFloat(monto).toFixed(2);
+                }
+              // }
+            });
+          });
 
           this.sendToFatherPre(data.precios);
 
-          this.dtTrigger.next("");
-          this.sendToFather("hideLoader");
+          this.dtTrigger.next('');
+          this.sendToFather('hideLoader');
 
           callback({
             recordsTotal: data2.total,
             recordsFiltered: data2.to,
-            data: data2
+            data: data2,
           });
         });
       },
@@ -135,15 +155,14 @@ export class ProductsComponent implements OnInit {
           orderable: true,
         },
         {
-          title: "Nombre",
+          title: 'Nombre',
           data: null,
           orderable: true,
           render: (data, type, full) => {
-
             var red;
-            if(parseFloat(data.existencia) <= 0){
+            if (parseFloat(data.existencia) <= 0) {
               red = 'text-danger';
-            }else{
+            } else {
               red = '';
             }
 
@@ -153,45 +172,49 @@ export class ProductsComponent implements OnInit {
               return `<div class="add_prod"><button type="button" class="btn btn-secondary btn-xs"> <i class="fas fa-plus"></i></button> <span class="${red}"> ${data.pro_nombre}</span></div>`;
             } else {
               return `<div class="add_prod"><button type="button" class="btn btn-success btn-xs"> <i class="fas fa-plus"></i></button> <span class="${red}"> ${data.pro_nombre} </span></div>`;
-
             }
-          }
+          },
         },
         {
-          title: "Stock",
+          title: 'Stock',
           data: null,
           orderable: true,
           render: (data, type, full) => {
             var red;
-            if(parseFloat(data.existencia) <= 0){
+            if (parseFloat(data.existencia) <= 0) {
               red = 'text-danger';
-            }else{
+            } else {
               red = '';
             }
 
             let selected = [];
-            selected = this.selected.filter((item: any) => item.pro_id == data.pro_id);
+            selected = this.selected.filter(
+              (item: any) => item.pro_id == data.pro_id
+            );
 
             return `<div class=""><span class="${red}"> ${data.existencia}</span></div>`;
-
-
-
-          }
+          },
         },
         {
-          title: "Precio",
+          title: 'Precio',
           data: null,
           orderable: true,
           render: (data, type, full) => {
-            if(data.pro_grabaiva){
-              var price = (parseFloat(data.pro_precioventa) * 0.12)+parseFloat(data.pro_precioventa);
-              return `<div style="min-width:80px"> ${this.decimalP.transform(price, '1.2-2')} $</div>`;
-
-            }else{
-              return `<div style="min-width:80px"> ${this.decimalP.transform(data.pro_precioventa, '1.2-2')} $</div>`;
+            if (data.pro_grabaiva) {
+              var price =
+                parseFloat(data.pro_precioventa) * 0.12 +
+                parseFloat(data.pro_precioventa);
+              return `<div style="min-width:80px"> ${this.decimalP.transform(
+                price,
+                '1.2-2'
+              )} $</div>`;
+            } else {
+              return `<div style="min-width:80px"> ${this.decimalP.transform(
+                data.pro_precioventa,
+                '1.2-2'
+              )} $</div>`;
             }
-          }
-
+          },
         },
 
         {
@@ -230,7 +253,6 @@ export class ProductsComponent implements OnInit {
         //   }
 
         // },
-
       ],
       rowCallback: (row: Node, data: any | Object, index: number) => {
         const self = this;
@@ -243,14 +265,8 @@ export class ProductsComponent implements OnInit {
           this.sendToFatherProd(data);
         });
 
-
-        $('td .add_prod', row).on('mouseleave', (event) => {
-
-
-
-        });
-
-      }
+        $('td .add_prod', row).on('mouseleave', (event) => {});
+      },
     };
   }
 
@@ -259,4 +275,3 @@ export class ProductsComponent implements OnInit {
     //$.fn['dataTable'].ext.search.pop();
   }
 }
-

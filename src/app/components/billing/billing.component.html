@@ -180,8 +180,8 @@
               Tipo doc.</span
             >
             <select #tipo_documento class="form-control">
-              <option selected value="01">Nota de venta</option>
-              <option value="02">Factura</option>
+              <option value="01">Nota de venta</option>
+              <option selected value="02">Factura</option>
             </select>
             <p *ngIf="validate('tipo_documento').valid" class="text-danger">
               {{ validate("tipo_documento").error }}
@@ -347,6 +347,8 @@
                       </td>
 
                       <td scope="col" ng-if="prod.precios.length != 0">
+                        
+
                         <select
                           id="{{ index }}"
                           (input)="changePriceE($event)"
@@ -429,9 +431,9 @@
                       </td>
 
                       <td scope="col">
-                        {{ prod.totalsiniva | number : "0.2-4" }} $
+                        {{ prod.totalsiniva | number : "0.2-2" }} $
                       </td>
-                      <td scope="col">{{ prod.total | number : "0.2-4" }} $</td>
+                      <td scope="col">{{ prod.total | number : "0.2-2" }} $</td>
                       <td scope="col" class="text-center">
                         <button
                           (click)="deleteProd(index)"
