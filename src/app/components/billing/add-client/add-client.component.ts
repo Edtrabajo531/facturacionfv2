@@ -94,7 +94,6 @@ export class AddClientComponent implements OnInit {
         this.loading = false;
         let detect_errors_server = this.validatorsS.detect_errors_server(response,this.form);
         if(detect_errors_server){
-          
           return;
         }
         
